@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Crystal Aqua Bubble ToDo</title>
 <style>
   :root {
@@ -16,6 +16,7 @@
     background: var(--bg-lagoon);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     user-select: none;
+    -webkit-user-select: none;
     position: relative;
   }
 
@@ -57,24 +58,37 @@
     100% { transform: translateY(-115vh) translateX(35px) scale(1.1); opacity: 0; }
   }
 
-  /* 上部入力コントロール */
+  /* 上部ドック（PCデフォルト：1行） */
   #header-dock {
     position: fixed;
-    top: 22px;
+    top: 18px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border: 1.5px solid rgba(255, 255, 255, 0.95);
-    padding: 8px 18px;
+    padding: 8px 16px;
     border-radius: 40px;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
     box-shadow: 0 10px 28px rgba(10, 50, 80, 0.2), inset 0 1px 2px rgba(255, 255, 255, 1);
     z-index: 1000;
+    max-width: 95vw;
   }
+  .dock-row-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+  .dock-row-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   #task-input {
     background: transparent;
     border: none;
@@ -82,7 +96,8 @@
     color: #0f172a;
     font-size: 14px;
     font-weight: 600;
-    width: 210px;
+    width: 190px;
+    flex: 1;
   }
   #task-input::placeholder { color: #64748b; font-weight: normal; }
 
@@ -96,13 +111,14 @@
   }
   .pill-btn {
     border: none;
-    padding: 5px 12px;
+    padding: 5px 11px;
     border-radius: 16px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     background: transparent;
     color: #475569;
+    white-space: nowrap;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .pill-btn.active.my { background: #059669; color: #fff; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35); }
@@ -115,23 +131,24 @@
     color: #fff;
     border: none;
     border-radius: 20px;
-    padding: 6px 18px;
+    padding: 6px 16px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
+    white-space: nowrap;
     box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
     transition: transform 0.15s;
   }
-  #add-btn:hover { transform: scale(1.05); }
+  #add-btn:active { transform: scale(0.95); }
 
   /* 右上ステータス＆設定ボタン */
   #sync-badge {
     position: fixed;
-    top: 24px;
-    right: 28px;
+    top: 20px;
+    right: 16px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     z-index: 1000;
   }
   .status-dot {
@@ -144,7 +161,7 @@
   .status-dot.syncing { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; animation: pulse 1s infinite; }
   .status-dot.error { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
   .icon-btn {
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.85);
     border: 1.5px solid rgba(255, 255, 255, 0.95);
     color: #0f172a;
     border-radius: 50%;
@@ -158,9 +175,45 @@
     box-shadow: 0 4px 12px rgba(10, 50, 80, 0.15);
     transition: transform 0.2s;
   }
-  .icon-btn:hover { transform: scale(1.08); background: #fff; }
+  .icon-btn:active { transform: scale(0.92); }
 
-  /* タスクの泡 */
+  /* スマホ専用レイアウト（画面幅650px以下） */
+  @media (max-width: 650px) {
+    #header-dock {
+      top: 12px;
+      width: calc(100vw - 76px);
+      left: 12px;
+      transform: none;
+      flex-direction: column;
+      border-radius: 20px;
+      padding: 8px 12px;
+      gap: 6px;
+    }
+    .dock-row-top {
+      width: 100%;
+      display: flex;
+      gap: 6px;
+    }
+    .dock-row-bottom {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+    #task-input {
+      font-size: 13px;
+      width: auto;
+    }
+    .pill-btn {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    #sync-badge {
+      top: 14px;
+      right: 12px;
+    }
+  }
+
+  /* タスクの泡（立体クリスタル） */
   .bubble {
     position: absolute;
     border-radius: 50%;
@@ -169,7 +222,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 18px;
+    padding: 14px;
     text-align: center;
     color: #0f172a;
     transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -178,7 +231,6 @@
     -webkit-backdrop-filter: blur(8px);
     touch-action: none;
   }
-  .bubble:hover { transform: scale(1.08); }
   .bubble.dragging {
     cursor: grabbing !important;
     transform: scale(1.15) !important;
@@ -254,24 +306,24 @@
   }
 
   .bubble-badge {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
-    padding: 3px 10px;
+    padding: 2px 8px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.92);
     color: #0f172a;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     letter-spacing: 0.03em;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     pointer-events: none;
   }
   .bubble-text {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
-    line-height: 1.35;
+    line-height: 1.3;
     color: #0f172a;
     word-break: break-all;
-    max-width: 85%;
+    max-width: 88%;
     text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
     pointer-events: none;
   }
@@ -293,18 +345,20 @@
     z-index: 2000;
     align-items: center;
     justify-content: center;
+    padding: 16px;
   }
   .modal-box {
     background: #ffffff;
     border: 1.5px solid rgba(255, 255, 255, 0.9);
     border-radius: 24px;
-    padding: 26px;
-    width: 390px;
+    padding: 22px;
+    width: 100%;
+    max-width: 380px;
     box-shadow: 0 24px 50px rgba(10, 50, 80, 0.25);
     color: #0f172a;
   }
-  .modal-box h3 { font-size: 17px; margin-bottom: 16px; font-weight: 800; }
-  .modal-box label { font-size: 12px; font-weight: 700; color: #475569; display: block; margin-top: 12px; }
+  .modal-box h3 { font-size: 16px; margin-bottom: 14px; font-weight: 800; }
+  .modal-box label { font-size: 12px; font-weight: 700; color: #475569; display: block; margin-top: 10px; }
   .modal-box input {
     width: 100%;
     margin-top: 5px;
@@ -317,7 +371,7 @@
     outline: none;
   }
   .modal-box input:focus { border-color: #0284c7; background: #fff; }
-  .modal-actions { margin-top: 22px; display: flex; justify-content: flex-end; gap: 10px; }
+  .modal-actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
   .modal-btn {
     border: none;
     padding: 7px 16px;
@@ -336,20 +390,22 @@
 
 <div class="bg-bubbles" id="bg-bubbles"></div>
 
+<!-- 2段構成に対応した入力コントロール -->
 <div id="header-dock">
-  <input type="text" id="task-input" placeholder="タスクを入力 (Enterで浮かべる)">
-  
-  <div class="pill-group">
-    <button class="pill-btn active my" id="p-my" onclick="setBall('my')">● 自分</button>
-    <button class="pill-btn wait" id="p-wait" onclick="setBall('wait')">⏳ 相手</button>
+  <div class="dock-row-top">
+    <input type="text" id="task-input" placeholder="タスクを入力">
+    <button id="add-btn" onclick="addTask()">浮かべる</button>
   </div>
-
-  <div class="pill-group">
-    <button class="pill-btn active normal" id="p-normal" onclick="setPriority('normal')">通常</button>
-    <button class="pill-btn urgent" id="p-urgent" onclick="setPriority('urgent')">🔥 最優先</button>
+  <div class="dock-row-bottom">
+    <div class="pill-group">
+      <button class="pill-btn active my" id="p-my" onclick="setBall('my')">● 自分</button>
+      <button class="pill-btn wait" id="p-wait" onclick="setBall('wait')">⏳ 相手</button>
+    </div>
+    <div class="pill-group">
+      <button class="pill-btn active normal" id="p-normal" onclick="setPriority('normal')">通常</button>
+      <button class="pill-btn urgent" id="p-urgent" onclick="setPriority('urgent')">🔥 最優先</button>
+    </div>
   </div>
-
-  <button id="add-btn" onclick="addTask()">浮かべる</button>
 </div>
 
 <div id="sync-badge">
@@ -381,13 +437,24 @@
 
   const syncDot = document.getElementById('sync-dot');
 
+  // スマホ判定でサイズを最適化
+  function calculateBubbleSize(text, priority) {
+    const isMobile = window.innerWidth <= 650;
+    const baseSize = isMobile 
+      ? (priority === 'urgent' ? 125 : 108)
+      : (priority === 'urgent' ? 150 : 130);
+    const maxSize = isMobile ? 155 : 200;
+    const charWeight = isMobile ? 6 : 8;
+    return Math.max(baseSize, Math.min(maxSize, (text || '').length * charWeight + baseSize - 20));
+  }
+
   function initAmbientBubbles() {
     const container = document.getElementById('bg-bubbles');
-    const count = 15;
+    const count = window.innerWidth <= 650 ? 9 : 15;
     for (let i = 0; i < count; i++) {
       const b = document.createElement('div');
       b.className = 'ambient-bubble';
-      const size = Math.random() * 60 + 30;
+      const size = Math.random() * 50 + 25;
       b.style.width = size + 'px';
       b.style.height = size + 'px';
       b.style.left = Math.random() * 95 + '%';
@@ -419,18 +486,20 @@
     const text = input.value.trim();
     if (!text) return;
 
-    const baseSize = currentPriority === 'urgent' ? 150 : 130;
+    const bSize = calculateBubbleSize(text, currentPriority);
+    const topMargin = window.innerWidth <= 650 ? 110 : 90;
+
     const task = {
       id: "t_" + Date.now(),
       text: text,
-      ball: currentBall, // 'my' または 'wait'
+      ball: currentBall,
       priority: currentPriority,
       date: new Date().toLocaleDateString('ja-JP'),
-      x: Math.random() * (window.innerWidth - 200) + 50,
-      y: Math.random() * (window.innerHeight - 300) + 120,
-      vx: (Math.random() - 0.5) * 0.7,
-      vy: (Math.random() - 0.5) * 0.7,
-      size: Math.max(baseSize, Math.min(200, text.length * 8 + baseSize - 30)),
+      x: Math.random() * (window.innerWidth - bSize - 30) + 15,
+      y: Math.random() * (window.innerHeight - bSize - topMargin - 30) + topMargin,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      size: bSize,
       isDragging: false
     };
 
@@ -458,6 +527,8 @@
     let startX = 0, startY = 0;
     let initialBubbleX = 0, initialBubbleY = 0;
     let hasMoved = false;
+    let longPressTimer = null;
+    let isLongPressed = false;
 
     const onPointerDown = (e) => {
       if (e.button && e.button !== 0) return;
@@ -470,6 +541,16 @@
       initialBubbleX = t.x;
       initialBubbleY = t.y;
       hasMoved = false;
+      isLongPressed = false;
+
+      // スマホ向け：0.5秒長押しで「自分 ⇄ 相手待ち」切り替え
+      longPressTimer = setTimeout(() => {
+        if (!hasMoved) {
+          isLongPressed = true;
+          toggleBallStatus(t, b);
+          if (navigator.vibrate) navigator.vibrate(40);
+        }
+      }, 480);
 
       const onPointerMove = (moveEv) => {
         const curX = (moveEv.touches && moveEv.touches[0]) ? moveEv.touches[0].clientX : moveEv.clientX;
@@ -479,6 +560,7 @@
 
         if (!hasMoved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
           hasMoved = true;
+          clearTimeout(longPressTimer);
           t.isDragging = true;
           b.classList.add('dragging');
         }
@@ -492,6 +574,7 @@
       };
 
       const onPointerUp = (upEv) => {
+        clearTimeout(longPressTimer);
         window.removeEventListener('mousemove', onPointerMove);
         window.removeEventListener('mouseup', onPointerUp);
         window.removeEventListener('touchmove', onPointerMove);
@@ -500,7 +583,7 @@
         if (hasMoved) {
           t.isDragging = false;
           b.classList.remove('dragging');
-        } else {
+        } else if (!isLongPressed) {
           const rect = b.getBoundingClientRect();
           const popX = rect.left + rect.width / 2;
           const popY = rect.top + rect.height / 2;
@@ -517,17 +600,21 @@
     b.addEventListener('mousedown', onPointerDown);
     b.addEventListener('touchstart', onPointerDown, { passive: false });
 
-    // 右クリックで「自分 ⇄ 相手待ち」切り替え
+    // PC用：右クリックで切り替え
     b.oncontextmenu = (e) => {
       e.preventDefault();
-      t.ball = (t.ball === 'my') ? 'wait' : 'my';
-      b.className = `bubble ${t.ball} ${t.priority}`;
-      b.querySelector('.bubble-badge').textContent = 
-        (t.priority === 'urgent' ? '🔥 ' : '') + (t.ball === 'my' ? '自分' : '相手待ち');
-      syncToCloud();
+      toggleBallStatus(t, b);
     };
 
     document.body.appendChild(b);
+  }
+
+  function toggleBallStatus(t, b) {
+    t.ball = (t.ball === 'my') ? 'wait' : 'my';
+    b.className = `bubble ${t.ball} ${t.priority}`;
+    b.querySelector('.bubble-badge').textContent = 
+      (t.priority === 'urgent' ? '🔥 ' : '') + (t.ball === 'my' ? '自分' : '相手待ち');
+    syncToCloud();
   }
 
   function escapeHtml(s) {
@@ -585,31 +672,30 @@
   }
 
   function createParticles(x, y, color) {
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 20; i++) {
       const p = document.createElement('div');
       p.className = 'sparkle';
-      const size = Math.random() * 8 + 4;
+      const size = Math.random() * 7 + 3;
       p.style.width = size + 'px';
       p.style.height = size + 'px';
       p.style.background = color;
-      p.style.boxShadow = `0 0 12px ${color}, 0 0 4px #ffffff`;
+      p.style.boxShadow = `0 0 10px ${color}, 0 0 3px #ffffff`;
       p.style.left = x + 'px';
       p.style.top = y + 'px';
       document.body.appendChild(p);
 
       const angle = Math.random() * Math.PI * 2;
-      const dist = Math.random() * 110 + 40;
+      const dist = Math.random() * 90 + 30;
       const destX = x + Math.cos(angle) * dist;
       const destY = y + Math.sin(angle) * dist;
 
       p.animate([
         { transform: 'translate(0, 0) scale(1.4)', opacity: 1 },
         { transform: `translate(${destX - x}px, ${destY - y}px) scale(0)`, opacity: 0 }
-      ], { duration: 480, easing: 'cubic-bezier(0, .8, .5, 1)' }).onfinish = () => p.remove();
+      ], { duration: 440, easing: 'cubic-bezier(0, .8, .5, 1)' }).onfinish = () => p.remove();
     }
   }
 
-  // クラウドへ保存（常に確実に 'my' / 'wait' の正規化キーを送信）
   async function syncToCloud() {
     if (!gasUrl || !secretKey) return;
     syncDot.className = 'status-dot syncing';
@@ -639,7 +725,6 @@
     }
   }
 
-  // クラウドから読み込み（表記揺れガード）
   async function loadFromCloud() {
     if (!gasUrl || !secretKey) {
       openSettings();
@@ -651,29 +736,30 @@
       const data = await res.json();
       if (Array.isArray(data)) {
         document.querySelectorAll('.bubble').forEach(el => el.remove());
+        const topMargin = window.innerWidth <= 650 ? 110 : 90;
+
         tasks = data.map(t => {
           const rawBall = String(t.ball || '').trim();
           const rawPriority = String(t.priority || '').trim();
 
-          // 「自分」「my」という文字が含まれていればすべて確実に 'my' とする
           const isMy = (rawBall === 'my' || rawBall.includes('自分'));
           const isUrgent = (rawPriority === 'urgent' || rawPriority.includes('最優先'));
 
           const ballKey = isMy ? 'my' : 'wait';
           const priorityKey = isUrgent ? 'urgent' : 'normal';
+          const bSize = calculateBubbleSize(t.text || '', priorityKey);
 
-          const baseSize = priorityKey === 'urgent' ? 150 : 130;
           return {
             id: t.id || ("t_" + Date.now() + Math.random()),
             text: t.text || '',
             ball: ballKey,
             priority: priorityKey,
             date: t.date || '',
-            x: Math.random() * (window.innerWidth - 200) + 50,
-            y: Math.random() * (window.innerHeight - 300) + 120,
-            vx: (Math.random() - 0.5) * 0.7,
-            vy: (Math.random() - 0.5) * 0.7,
-            size: Math.max(baseSize, Math.min(200, (t.text || '').length * 8 + baseSize - 30)),
+            x: Math.random() * (window.innerWidth - bSize - 30) + 15,
+            y: Math.random() * (window.innerHeight - bSize - topMargin - 30) + topMargin,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: (Math.random() - 0.5) * 0.6,
+            size: bSize,
             isDragging: false
           };
         });
@@ -688,13 +774,14 @@
   }
 
   function animate() {
+    const topMargin = window.innerWidth <= 650 ? 105 : 85;
     tasks.forEach(t => {
       if (!t.isDragging) {
         t.x += t.vx;
         t.y += t.vy;
 
-        if (t.x < 15 || t.x > window.innerWidth - t.size - 15) t.vx *= -1;
-        if (t.y < 90 || t.y > window.innerHeight - t.size - 15) t.vy *= -1;
+        if (t.x < 10 || t.x > window.innerWidth - t.size - 10) t.vx *= -1;
+        if (t.y < topMargin || t.y > window.innerHeight - t.size - 15) t.vy *= -1;
 
         const el = document.getElementById('node-' + t.id);
         if (el) {
